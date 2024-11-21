@@ -3,3 +3,5 @@ Housing Portal Plus, the next app in college knowledge. How much do YOU know abo
 Developers: Andrew Moreno, Sean Weber, Alex Acosta, Digeo Calderon
 
 Housing Portal
+
+I was here
