@@ -145,7 +145,7 @@ class _LoadScreenState extends State<LoadScreen>
             ),
             SizedBox(height: 30),
             Text(
-              'Finding Housing',
+              'Housing plus',
               style: TextStyle(
                 fontFamily: 'Roboto',
                 color: Colors.white,
