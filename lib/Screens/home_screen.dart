@@ -15,6 +15,34 @@ class HomeScreen extends StatelessWidget {
         ),
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blue,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.home, color: Colors.white),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                  (route) => false,
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.search, color: Colors.white),
+              
+              onPressed: () {
+                Scrollable.ensureVisible(
+                  context,
+                  duration: Duration(milliseconds: 500),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +94,18 @@ class HomeScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.yellow
                   ),
-                  child: Text('Porter College'),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/squiggle.jpg',
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(width: 8),
+                      Text('Porter College'),  
+                    ]
+                  ) 
                 ),
               ),
             )
