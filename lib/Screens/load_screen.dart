@@ -18,14 +18,6 @@ class _LoadScreenState extends State<LoadScreen>
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-
-    /*Future.delayed(Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
-    });*/
     // Initialize animation controller
     _controller = AnimationController(
       duration: const Duration(seconds: 4),
