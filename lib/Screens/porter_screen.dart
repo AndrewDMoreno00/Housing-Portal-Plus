@@ -38,11 +38,84 @@ class PorterScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: Center(
-        child: Image(
-          width: 750 ,
-          image: AssetImage('assets/download.jpg')
-          ), 
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(
+            child: Container(
+              width: 600,
+              height: 200,
+              margin: EdgeInsets.only(top: 20),
+              child: Image(
+                image: AssetImage('assets/download (1).jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SizedBox(height: 20), // Add spacing between image and buttons
+          // First row with two buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  minimumSize: Size(120, 50),
+                ),
+                child: Text('Button 1', style: TextStyle(color: Colors.white)),
+              ),
+              SizedBox(width: 20), // Space between buttons
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  minimumSize: Size(120, 50),
+                ),
+                child: Text('Button 2', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          SizedBox(height: 20), // Space between rows
+          // Long button in the middle
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              minimumSize: Size(260, 50), // Longer width for middle button
+            ),
+            child: Text('Button 5', style: TextStyle(color: Colors.white)),
+          ),
+          SizedBox(height: 20), // Space between rows
+          // Last row with two buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  minimumSize: Size(120, 50),
+                ),
+                child: Text('Button 3', style: TextStyle(color: Colors.white)),
+              ),
+              SizedBox(width: 20), // Space between buttons
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  minimumSize: Size(120, 50),
+                ),
+                child: Text('Button 4', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
