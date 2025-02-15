@@ -89,21 +89,21 @@ class HomeScreen extends StatelessWidget {
               },
               child: SizedBox(
                 height: 50,
-                width: 750,
+                width: 650,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.yellow
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Text('Porter College'),
                       Image.asset(
                         'assets/squiggle.jpg',
-                        height: 40,
-                        width: 40,
+                        height: 300,
+                        width: 170,
                         fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 8),
-                      Text('Porter College'),  
+                      ),  
                     ]
                   ) 
                 ),
