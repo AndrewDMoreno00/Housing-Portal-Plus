@@ -47,7 +47,7 @@ class PorterScreen extends StatelessWidget {
               height: 200,
               margin: EdgeInsets.only(top: 20),
               child: Image(
-                image: AssetImage('assets/download (1).jpg'),
+                image: AssetImage('porter.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
