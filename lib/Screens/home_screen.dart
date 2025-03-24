@@ -6,13 +6,14 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text('Housing Portal Plus',
-        style: TextStyle(
-          fontSize: 16
-        ),
+        title: Text(
+          'Housing Portal Plus',
+          style: TextStyle(fontSize: 16),
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -32,7 +33,6 @@ class HomeScreen extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.search, color: Colors.white),
-              
               onPressed: () {
                 Scrollable.ensureVisible(
                   context,
@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                     leading: const Icon(Icons.search),
                   );
                 },
-                suggestionsBuilder: 
+                suggestionsBuilder:
                     (BuildContext context, SearchController controller) {
                   return List<ListTile>.generate(5, (int index) {
                     final String item = 'item $index';
@@ -87,28 +87,31 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => PorterScreen()),
                 );
               },
-              child: SizedBox(
-                height: 50,
-                width: 650,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.yellow
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Porter College'),
-                      Image.asset(
-                        'assets/squiggle.jpg',
-                        height: 300,
-                        width: 170,
-                        fit: BoxFit.cover,
-                      ),  
-                    ]
-                  ) 
+              child: Container(
+                width: screenWidth * 0.9, // 90% of screen width
+                height: screenWidth * 0.13, // Adjust this to your desired height
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.yellow,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Porter College',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Image.asset(
+                      'assets/squiggle.jpg',
+                      width: screenWidth * 0.3, // 30% of screen width
+                      height: screenWidth * 0.2, // Maintain aspect ratio
+                      fit: BoxFit.cover,
+                    ),
+                  ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
