@@ -44,11 +44,10 @@ class PorterScreen extends StatelessWidget {
           children: [
             Center(
               child: Container(
-                width: 600,
-                height: 200,
-                margin: EdgeInsets.only(top: 20),
-                child: Image(
-                  image: AssetImage('porter.jpg'),
+              margin: EdgeInsets.only(top: 20),
+              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                child: Image.asset(
+                  'assets/porter.jpg', // Ensure the path is correct
                   fit: BoxFit.cover,
                 ),
               ),
