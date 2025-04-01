@@ -9,134 +9,90 @@ class LoadScreen extends StatefulWidget {
   State<LoadScreen> createState() => _LoadScreenState();
 }
 
-class _LoadScreenState extends State<LoadScreen> 
-    with SingleTickerProviderStateMixin {
+class _LoadScreenState extends State<LoadScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  late Animation<double> _horizontalMovement;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    // Initialize animation controller
+    
+    // Initialize animation controller for 5 seconds
     _controller = AnimationController(
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 5),
       vsync: this,
-    )..repeat(reverse: true);
-
-    // Create a curved animation
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
     );
 
-    Future.delayed(Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
+    // Animation for horizontal movement (from right to left)
+    _horizontalMovement = Tween<double>(
+      begin: 1.0,
+      end: -1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+
+    // Start the animation and make it repeat
+    _controller.repeat();
+
+    // Navigate to home screen after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) { // Ensures the widget is still active
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => const HomeScreen(),
+          ),
+        );
+      }
     });
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-                    gradient: LinearGradient(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
               Color(0xFF13A5DC), // UCSC Blue
               Color(0xFF003C6C), // UCSC Dark Blue
             ],
-          )
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Animated Banana Slug
             AnimatedBuilder(
-              animation: _animation,
+              animation: _controller,
               builder: (context, child) {
                 return Transform.translate(
-                  offset: Offset(0, 10 * _animation.value),
-                  child: Container(
-                    width: 120,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFDB515), // UCSC Yellow
-                      borderRadius: BorderRadius.all(Radius.circular(30)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Slug eyes
-                        Positioned(
-                          top: 15,
-                          left: 20,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 15,
-                          left: 35,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        // Slug antennae
-                        Positioned(
-                          top: 5,
-                          left: 25,
-                          child: Container(
-                            width: 2,
-                            height: 10,
-                            color: Color(0xFFE09900), // Darker yellow
-                          ),
-                        ),
-                        Positioned(
-                          top: 5,
-                          left: 35,
-                          child: Container(
-                            width: 2,
-                            height: 10,
-                            color: Color(0xFFE09900), // Darker yellow
-                          ),
-                        ),
-                      ],
-                    ),
+                  // Straight horizontal movement
+                  offset: Offset(
+                    _horizontalMovement.value * screenWidth,
+                    0,
                   ),
+                  child: child,
                 );
               },
+              child: Image.asset(
+                'assets/SnailChilling.png',
+                width: 150,
+                height: 80,
+              ),
             ),
-            SizedBox(height: 30),
-            Text(
+            const SizedBox(height: 30),
+            const Text(
               'Housing plus',
               style: TextStyle(
                 fontFamily: 'Roboto',
@@ -145,8 +101,8 @@ class _LoadScreenState extends State<LoadScreen>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Go Banana Slugs!',
               style: TextStyle(
                 fontFamily: 'Roboto',
