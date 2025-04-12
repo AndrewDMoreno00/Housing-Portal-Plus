@@ -10,6 +10,7 @@ import 'package:housing_portal_plus/Screens/crown_screen.dart';
 import 'package:housing_portal_plus/Screens/nine_screen.dart'; 
 import 'package:housing_portal_plus/Screens/john_screen.dart'; 
 import 'package:housing_portal_plus/Screens/google_map.dart';
+import 'package:housing_portal_plus/screens/chat_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -71,6 +72,15 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => MapScreen()),
                   (route) => false,
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.chat, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatScreen()),
                 );
               },
             ),
@@ -197,6 +207,17 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChatScreen()),
+            );
+          },
+        backgroundColor: Colors.blue,
+        tooltip: 'Chat with Sammy',
+        child: Icon(Icons.chat),
       ),
     );
   }
