@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "545063521125",
+    "project_id": "housing-portal-77cc6",
+    "storage_bucket": "housing-portal-77cc6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545063521125:android:48f9335607189f76b12f8c",
+        "android_client_info": {
+          "package_name": "com.example.housing_portal_plus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqE7QxUdGXqwsRfnifsukcJOdCDiTFaME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
