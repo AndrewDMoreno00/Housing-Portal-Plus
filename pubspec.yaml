@@ -79,6 +79,15 @@ flutter:
     - assets/Snailwithbook.png
     - assets/SnailChilling.png
     - assets/Snailwithsign.png
+    - assets/cowell_power.png
+    - assets/stevenson_power.png
+    - assets/crown_power.png
+    - assets/merrill_power.png
+    - assets/leaf.png
+    - assets/oakes_power.png
+    - assets/rachel_power.png
+    - assets/nine_power.png
+    - assets/john_power.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
