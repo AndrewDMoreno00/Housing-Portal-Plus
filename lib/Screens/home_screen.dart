@@ -36,9 +36,18 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text(
-          'Housing Portal Plus',
-          style: TextStyle(fontSize: 16),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Housing Portal Plus',
+              style: TextStyle(fontSize: 16),
+            ),
+            Image.asset(
+              'assets/Snailwithsign.png', 
+              height: 70,        
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -53,15 +62,6 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => HomeScreen()),
                   (route) => false,
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.white),
-              onPressed: () {
-                Scrollable.ensureVisible(
-                  context,
-                  duration: Duration(milliseconds: 500),
                 );
               },
             ),
@@ -136,72 +136,72 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 16),
               CustomTile(
                 title: 'Cowell College',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: CowellScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/cowell_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Stevenson College',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: StevensonScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/stevenson_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Crown College',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: CrownScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/crown_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
-                title: 'Merril College',
-                color: Colors.blue, 
+                title: 'Merrill College',
+                color: Color(0xFFFFD700), 
                 destinationPage: MerrilScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/merrill_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Porter College',
-                color: Colors.yellow,
+                color: Color(0xFFFFD700),
                 destinationPage: PorterScreen(),
                 imageAsset: 'assets/squiggle.jpg',
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Kresge College',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: KresgeScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/leaf.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Oakes College',
-                color: Colors.orange, 
+                color: Color(0xFFFFD700), 
                 destinationPage: OakesScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/oakes_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'Rachel Carson College',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: RachelScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/rachel_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'College Nine',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: NineScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/nine_power.png', 
               ),
               SizedBox(height: 16),
               CustomTile(
                 title: 'John R. Lewis',
-                color: Colors.blue, 
+                color: Color(0xFFFFD700), 
                 destinationPage: JohnScreen(), 
-                imageAsset: 'assets/', 
+                imageAsset: 'assets/john_power.png', 
               ),
               SizedBox(height: 32),
             ],
@@ -265,8 +265,10 @@ class CustomTile extends StatelessWidget {
             ),
             Image.asset(
               imageAsset,
-              width: screenWidth * 0.3, // 30% of screen width
-              height: screenWidth * 0.2, // Maintain aspect ratio
+              //width: 40,
+              width: screenWidth * 0.2, // 30% of screen width
+              height: screenWidth * 0.3, // Maintain aspect ratio
+              //height: 60,
               fit: BoxFit.cover,
             ),
           ],
