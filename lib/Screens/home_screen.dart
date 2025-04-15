@@ -11,6 +11,7 @@ import 'package:housing_portal_plus/Screens/nine_screen.dart';
 import 'package:housing_portal_plus/Screens/john_screen.dart'; 
 import 'package:housing_portal_plus/Screens/google_map.dart';
 import 'package:housing_portal_plus/screens/chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,6 +33,15 @@ class HomeScreen extends StatelessWidget {
       {'title': 'College Nine', 'screen': NineScreen()},
       {'title': 'John R. Lewis', 'screen': JohnScreen()},
     ];
+    
+    void launchGoogleForm() async {
+      final Uri url = Uri.parse('https://docs.google.com/forms/d/e/1FAIpQLSdmiP6yTYxi5qnQoJc6TnSsoJ0dRPaAuDyxXcGfv57rh7Gm5A/viewform?usp=sf_link');
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw 'Could not launch $url';
+      }else {
+        debugPrint('Could not launch $url');
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -202,6 +212,11 @@ class HomeScreen extends StatelessWidget {
                 color: Color(0xFFFFD700), 
                 destinationPage: JohnScreen(), 
                 imageAsset: 'assets/john_power.png', 
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: launchGoogleForm,
+                child: Text('Fill Out Our College Form'),
               ),
               SizedBox(height: 32),
             ],
