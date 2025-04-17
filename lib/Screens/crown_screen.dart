@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:housing_portal_plus/Screens/home_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:housing_portal_plus/screens/chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 class CrownScreen extends StatefulWidget {
   const CrownScreen({super.key});
@@ -11,13 +14,20 @@ class CrownScreen extends StatefulWidget {
 
 class _CrownScreenState extends State<CrownScreen> {
   final reviewKey = GlobalKey(); // For scroll targeting
+  final imageGalleryKey = GlobalKey();
+  final infoSectionKey = GlobalKey();
+
   List<Map<dynamic, dynamic>> reviews = [];
   int visibleReviews = 1;
-  
+  List<String> imageUrls = []; // To store image URLs
+  List<String> dormImageUrls = [];
+
   @override
   void initState() {
     super.initState();
     fetchReviews();
+    fetchImageUrls();
+    fetchDormImageUrls();
   }
 
   Future<void> fetchReviews() async {
@@ -37,6 +47,36 @@ class _CrownScreenState extends State<CrownScreen> {
       });
     }
   }
+  // Fetch image URLs from Firebase Realtime Database
+  Future<void> fetchImageUrls() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("images/crown");
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      List<String> loadedImageUrls = [];
+      for (var child in snapshot.children) {
+        loadedImageUrls.add(child.value as String); // Assuming the value is a string URL
+      }
+      setState(() {
+        imageUrls = loadedImageUrls;
+      });
+    }
+  }
+  Future<void> fetchDormImageUrls() async {
+  DatabaseReference ref = FirebaseDatabase.instance.ref("dorm/crown");
+  final snapshot = await ref.get();
+
+  if (snapshot.exists) {
+    List<String> loadedDormUrls = [];
+    for (var child in snapshot.children) {
+      loadedDormUrls.add(child.value as String); // Assuming value is a URL string
+    }
+    setState(() {
+      dormImageUrls = loadedDormUrls;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +102,11 @@ class _CrownScreenState extends State<CrownScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
+              icon: Icon(Icons.chat, color: Colors.white),
               onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatScreen()),
                 );
               },
             ),
@@ -79,60 +119,224 @@ class _CrownScreenState extends State<CrownScreen> {
           children: [
             Center(
               child: Container(
-              margin: EdgeInsets.only(top: 20),
-              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                margin: EdgeInsets.only(top: 20),
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: Image.asset(
                   'assets/crown.jpg',
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            Center (
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Text(
-                ' college was founded in 1972',
+                '''
+Crown College, founded in 1967, is UCSC’s third residential college with a theme of “Science and Technology in Society.” It fosters a diverse, inclusive community that values open discussion, ethical reflection, and mutual respect. While known for its focus on science and technology, Crown supports a wide range of academic interests, and its core course explores the ethical and political dimensions of emerging technologies.
+''',
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black, // Better contrast on gold
+                ),
               ),
             ),
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 1', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      infoSectionKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Info'),
                 ),
-                SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 2', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      imageGalleryKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      reviewKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Reviews'),
                 ),
               ],
             ),
+            SizedBox(height: 20),
+            // Image Gallery with Swipeable Feature
+            if (imageUrls.isNotEmpty) 
+              Column(
+                key: imageGalleryKey,
+                children: [
+                  Text(
+                    'Crown College Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 220,
+                    child: PageView.builder(
+                      itemCount: imageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                imageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            if (dormImageUrls.isNotEmpty)
+              Column(
+                children: [
+                  Text(
+                    'Crown Dorm Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 320,
+                    width: 450,
+                    child: PageView.builder(
+                      itemCount: dormImageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 10,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                dormImageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
-                );
-              },
-              child: const Text('Reviews'),
-            ),
-            const SizedBox(height: 20),
+            Container(
+              key: infoSectionKey,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Info",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        height: 1.4,
+                      ),
+                      children: [
+                        const TextSpan(
+                          text: '''
+  An important goal of the college is to foster an appreciation for the contributions of diverse cultural groups and to provide an atmosphere in which issues of both diversity and common social purpose are integrated into a wide range of programs and discussions. We extend a warm welcome to all students and encourage them to take advantage of the many opportunities here at Crown as we strive to create an atmosphere of academic excellence.
 
-            // Review Section
-            //int visibleReviews = 1; // Start with 1 visible
-            // Replace your review section widget with this:
+  The Crown Programs Office is made up of a dedicated team of staff and student leaders who organize a wide range of events and programming throughout the year. This team includes the College Programs Coordinator (CPC), Assistant College Programs Coordinator (ACPC), Program Assistants (PAs), Orientation Welcome Leaders (OWLs), and Crown Student Senate (CSS) members. Together, we collaborate to support Crown students’ educational development, recreational opportunities, cultural awareness, and personal growth.
+
+  Banana Joe's Late night - need a late night dinner, Banana Joe's is the place to go. Located at Crown College, this late night cafe offers student favorites like burgers, fries, and pizza. Slug Points, Banana Bucks, Flexi Dollars, and credit cards accepted.
+
+            ''',
+                        ),
+                        const TextSpan(
+                          text: 'For more information, visit ',
+                        ),
+                        TextSpan(
+                          text: 'crown.ucsc.edu',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              final Uri url = Uri.parse('https://crown.ucsc.edu/');
+                              if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Could not launch $url')),
+                                );
+                              }
+                            },
+                        ),
+                        const TextSpan(text: '.'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
             Container(
               key: reviewKey,
               padding: const EdgeInsets.all(16),
@@ -210,3 +414,4 @@ class _CrownScreenState extends State<CrownScreen> {
     );
   }
 }
+

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:housing_portal_plus/Screens/home_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:housing_portal_plus/screens/chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 class PorterScreen extends StatefulWidget {
   const PorterScreen({super.key});
@@ -11,13 +14,20 @@ class PorterScreen extends StatefulWidget {
 
 class _PorterScreenState extends State<PorterScreen> {
   final reviewKey = GlobalKey(); // For scroll targeting
+  final imageGalleryKey = GlobalKey();
+  final infoSectionKey = GlobalKey();
+
   List<Map<dynamic, dynamic>> reviews = [];
   int visibleReviews = 1;
-  
+  List<String> imageUrls = []; // To store image URLs
+  List<String> dormImageUrls = [];
+
   @override
   void initState() {
     super.initState();
     fetchReviews();
+    fetchImageUrls();
+    fetchDormImageUrls();
   }
 
   Future<void> fetchReviews() async {
@@ -37,6 +47,36 @@ class _PorterScreenState extends State<PorterScreen> {
       });
     }
   }
+  // Fetch image URLs from Firebase Realtime Database
+  Future<void> fetchImageUrls() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("images/porter");
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      List<String> loadedImageUrls = [];
+      for (var child in snapshot.children) {
+        loadedImageUrls.add(child.value as String); // Assuming the value is a string URL
+      }
+      setState(() {
+        imageUrls = loadedImageUrls;
+      });
+    }
+  }
+  Future<void> fetchDormImageUrls() async {
+  DatabaseReference ref = FirebaseDatabase.instance.ref("dorm/porter");
+  final snapshot = await ref.get();
+
+  if (snapshot.exists) {
+    List<String> loadedDormUrls = [];
+    for (var child in snapshot.children) {
+      loadedDormUrls.add(child.value as String); // Assuming value is a URL string
+    }
+    setState(() {
+      dormImageUrls = loadedDormUrls;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +102,11 @@ class _PorterScreenState extends State<PorterScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
+              icon: Icon(Icons.chat, color: Colors.white),
               onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatScreen()),
                 );
               },
             ),
@@ -79,60 +119,224 @@ class _PorterScreenState extends State<PorterScreen> {
           children: [
             Center(
               child: Container(
-              margin: EdgeInsets.only(top: 20),
-              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                margin: EdgeInsets.only(top: 20),
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: Image.asset(
                   'assets/porter.jpg',
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            Center (
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Text(
-                ' college was founded in 1972',
+                '''
+Porter College, founded in 1969 and named after the Porter-Sesnon family, emphasizes creative inquiry and academic achievement across all disciplines, especially the arts. Its curriculum encourages critical thinking, hands-on learning, and embracing failure as part of discovery. With interdisciplinary seminars and core courses in reading and writing, Porter fosters a philosophy of learning by doing and making a meaningful impact on the world.
+''',
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black, // Better contrast on gold
+                ),
               ),
             ),
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 1', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      infoSectionKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Info'),
                 ),
-                SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 2', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      imageGalleryKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      reviewKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Reviews'),
                 ),
               ],
             ),
+            SizedBox(height: 20),
+            // Image Gallery with Swipeable Feature
+            if (imageUrls.isNotEmpty) 
+              Column(
+                key: imageGalleryKey,
+                children: [
+                  Text(
+                    'Porter College Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 220,
+                    child: PageView.builder(
+                      itemCount: imageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                imageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            if (dormImageUrls.isNotEmpty)
+              Column(
+                children: [
+                  Text(
+                    'Porter Dorm Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 320,
+                    width: 450,
+                    child: PageView.builder(
+                      itemCount: dormImageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 10,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                dormImageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
-                );
-              },
-              child: const Text('Reviews'),
-            ),
-            const SizedBox(height: 20),
+            Container(
+              key: infoSectionKey,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Info",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        height: 1.4,
+                      ),
+                      children: [
+                        const TextSpan(
+                          text: '''
+  Porter College is an intentional learning community that seeks not only to teach but also to unify the students who call it home. It fosters rich relationships between undergraduates and Senate faculty, explores possibilities for teaching and learning that cross disciplinary boundaries, and affirms the connection between the way one learns and the way one lives. 
 
-            // Review Section
-            //int visibleReviews = 1; // Start with 1 visible
-            // Replace your review section widget with this:
+  The residence halls at Porter are an extremely active living and learning environment. Life here is a time for many choices and adjustments. Living with a roommate may be a new experience for some of you. Sharing a bathroom with 25 other residents can be challenging at times as well. Take the time to get to know your hall-mates and other members of the larger Porter community.
+
+  Located next to the Porter/Kresge Dining Hall, Porter Market offers grab-n-go meals, snacks, bottled beverages, smoothies, organic espresso drinks made-to-order, plus grocery and convenience items. Slug Points, Banana Bucks, Flexi Dollars, SNAP EBT, and credit cards accepted.
+            
+            ''',
+                        ),
+                        const TextSpan(
+                          text: 'For more information, visit ',
+                        ),
+                        TextSpan(
+                          text: 'porter.ucsc.edu',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              final Uri url = Uri.parse('https://porter.ucsc.edu/');
+                              if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Could not launch $url')),
+                                );
+                              }
+                            },
+                        ),
+                        const TextSpan(text: '.'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
             Container(
               key: reviewKey,
               padding: const EdgeInsets.all(16),
@@ -163,8 +367,6 @@ class _PorterScreenState extends State<PorterScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Transfer: ${review['transfer'] ?? 'N/A'}"),
-                              Text("Experience: ${review['experience'] ?? ''}"),
                               Text("Year: ${review ['what_year_are_you_'] ?? ''}"),
                               Text("Transfer: ${review['are_you_a_transfer_student_'] ?? 'N/A'}"),
                               Text("Currently in Dorm: ${review['do_you_currently_live_in_an_apartment_or_dorm_'] ?? 'N/A'}"),
@@ -212,3 +414,4 @@ class _PorterScreenState extends State<PorterScreen> {
     );
   }
 }
+

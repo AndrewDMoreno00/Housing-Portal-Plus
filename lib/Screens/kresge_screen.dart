@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:housing_portal_plus/Screens/home_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:housing_portal_plus/screens/chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 class KresgeScreen extends StatefulWidget {
   const KresgeScreen({super.key});
@@ -11,17 +14,24 @@ class KresgeScreen extends StatefulWidget {
 
 class _KresgeScreenState extends State<KresgeScreen> {
   final reviewKey = GlobalKey(); // For scroll targeting
+  final imageGalleryKey = GlobalKey();
+  final infoSectionKey = GlobalKey();
+
   List<Map<dynamic, dynamic>> reviews = [];
   int visibleReviews = 1;
-  
+  List<String> imageUrls = []; // To store image URLs
+  List<String> dormImageUrls = [];
+
   @override
   void initState() {
     super.initState();
     fetchReviews();
+    fetchImageUrls();
+    fetchDormImageUrls();
   }
 
   Future<void> fetchReviews() async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("submissions/cowell");
+    DatabaseReference ref = FirebaseDatabase.instance.ref("submissions/kresge");
     final snapshot = await ref.get();
 
     if (snapshot.exists) {
@@ -37,12 +47,42 @@ class _KresgeScreenState extends State<KresgeScreen> {
       });
     }
   }
+  // Fetch image URLs from Firebase Realtime Database
+  Future<void> fetchImageUrls() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("images/kresge");
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      List<String> loadedImageUrls = [];
+      for (var child in snapshot.children) {
+        loadedImageUrls.add(child.value as String); // Assuming the value is a string URL
+      }
+      setState(() {
+        imageUrls = loadedImageUrls;
+      });
+    }
+  }
+  Future<void> fetchDormImageUrls() async {
+  DatabaseReference ref = FirebaseDatabase.instance.ref("dorm/kresge");
+  final snapshot = await ref.get();
+
+  if (snapshot.exists) {
+    List<String> loadedDormUrls = [];
+    for (var child in snapshot.children) {
+      loadedDormUrls.add(child.value as String); // Assuming value is a URL string
+    }
+    setState(() {
+      dormImageUrls = loadedDormUrls;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cowell College'),
+        title: const Text('Kresge College'),
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
@@ -62,11 +102,11 @@ class _KresgeScreenState extends State<KresgeScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
+              icon: Icon(Icons.chat, color: Colors.white),
               onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatScreen()),
                 );
               },
             ),
@@ -79,60 +119,228 @@ class _KresgeScreenState extends State<KresgeScreen> {
           children: [
             Center(
               child: Container(
-              margin: EdgeInsets.only(top: 20),
-              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                margin: EdgeInsets.only(top: 20),
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: Image.asset(
-                  'assets/',
+                  'assets/kresge.jpg',
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            Center (
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Text(
-                'Cowell college',
+                '''
+Kresge College, founded in 1971, emphasizes collaboration, participatory democracy, and intentional living. Located among the redwoods, it offers a small-college experience focused on personal growth, community, and practical learning. Kresge encourages students to engage creatively with social, political, and environmental challenges.
+''',
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black, // Better contrast on gold
+                ),
               ),
             ),
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 1', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      infoSectionKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Info'),
                 ),
-                SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    minimumSize: Size(120, 50),
-                  ),
-                  child: Text('Button 2', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      imageGalleryKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Image'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      reviewKey.currentContext!,
+                      duration: const Duration(milliseconds: 500),
+                    );
+                  },
+                  child: const Text('Reviews'),
                 ),
               ],
             ),
+            SizedBox(height: 20),
+            // Image Gallery with Swipeable Feature
+            if (imageUrls.isNotEmpty) 
+              Column(
+                key: imageGalleryKey,
+                children: [
+                  Text(
+                    ' College Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    height: 220,
+                    child: PageView.builder(
+                      itemCount: imageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                imageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            if (dormImageUrls.isNotEmpty)
+              Column(
+                children: [
+                  Text(
+                    ' Dorm Images',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  //SizedBox(height: 10),
+                  SizedBox(
+                    height: 320,
+                    width: 450,
+                    child: PageView.builder(
+                      itemCount: dormImageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 10,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                dormImageUrls[index],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(child: Icon(Icons.broken_image)),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Scrollable.ensureVisible(
-                  reviewKey.currentContext!,
-                  duration: const Duration(milliseconds: 500),
-                );
-              },
-              child: const Text('Reviews'),
-            ),
-            const SizedBox(height: 20),
+            Container(
+              key: infoSectionKey,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD700), // Gold background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Info",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        height: 1.4,
+                      ),
+                      children: [
+                        const TextSpan(
+                          text: '''
+  Kresge’s curriculum is made up of three main pillars: its Core Course (for first-year students); its Transfer Curriculum (for Transfer students); and its Enhancement Curriculum (for all undergraduate students).
+  The Core seminar (KRSG 1) invites first-year students to reflect on three Big Questions: Why do I learn? How do I learn? & From whom do I learn? These questions are a starting point for students to reflect on what is possible at Kresge, at UCSC, and beyond.
 
-            // Review Section
-            //int visibleReviews = 1; // Start with 1 visible
-            // Replace your review section widget with this:
+  Kresge College provides a lively, fun and creative residential community, with active participation from both students and staff. The college is composed of two sections, Kresge Proper and J & K Buildings. Students live more independently and are able to create a more home-like environment. In apartments, students can study, relax, cook their own meals and socialize with friends in a welcoming and comfortable atmosphere. Students have the opportunity to learn life skills within a cooperative living environment.
+
+  Dining Services and the Division of Student Affairs and Success are pleased to announce the opening of Owl’s Nest Cafe. Located in Kresge College, Owl’s Nest provides food service Monday through Friday, 9 a.m. to 4 p.m. 
+  Featuring a coffee and smoothie bar, the cafe currently offers patrons a variety of grab-and-go food items, including bagels, wraps and other pre-packaged foods. 
+
+  Futre apartments coming soon to Kresge 2026
+  
+            ''',
+                        ),
+                        const TextSpan(
+                          text: 'For more information, visit ',
+                        ),
+                        TextSpan(
+                          text: 'kresge.ucsc.edu',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              final Uri url = Uri.parse('https://kresge.ucsc.edu/');
+                              if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Could not launch $url')),
+                                );
+                              }
+                            },
+                        ),
+                        const TextSpan(text: '.'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
             Container(
               key: reviewKey,
               padding: const EdgeInsets.all(16),
@@ -184,6 +392,7 @@ class _KresgeScreenState extends State<KresgeScreen> {
                         ),
                       );
                     }),
+
                     // Only show the button if there are more to show
                     if (visibleReviews < reviews.length)
                       Center(

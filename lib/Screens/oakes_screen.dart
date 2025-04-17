@@ -318,11 +318,11 @@ class _OakesScreenState extends State<OakesScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
-                              final url = Uri.parse('https://oakes.ucsc.edu/');
-                              if (await canLaunchUrl(url)) {
-                                await launchUrl(url);
-                              } else {
-                                throw 'Could not launch $url';
+                              final Uri url = Uri.parse('https://oakes.ucsc.edu/');
+                              if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Could not launch $url')),
+                                );
                               }
                             },
                         ),
